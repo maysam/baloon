@@ -80,10 +80,10 @@ else {
         canvas.bind('touchmove', false);
         $(document).bind('touchmove', false);
 		context = canvas[0].getContext("2d")
-		introbaloon.push(new Baloon(0.5, 2.5, 35))
-		introbaloon.push(new Baloon(1.5, 2.5, 35))
-		introbaloon.push(new Baloon(0.5, 3.5, 35))
-		introbaloon.push(new Baloon(1.5, 3.5, 35))
+		introbaloon.push(new Baloon(0.45, 2.55, 20))
+		introbaloon.push(new Baloon(1.5, 2.55, 20))
+		introbaloon.push(new Baloon(0.45, 3.5, 20))
+		introbaloon.push(new Baloon(1.5, 3.5, 20))
 		drawInstructions()
 	})
 	baloon = []
@@ -98,8 +98,8 @@ else {
 			j = Math.floor(Math.random()*5)
 		if (r == undefined) 
 			r = 0
-		this.x = i*90+45+20+5
-		this.y = j*85+60
+		this.x = i*45+45
+		this.y = j*50+60
 		this.color = Math.floor(Math.random()*4)
 		this.radius = r
 	}
@@ -135,7 +135,7 @@ function handle(e) {
 				//	new baloonss
 				for (var j = 0; j < baloon.length; j++) {
 					if (baloon[j].color == c) {
-						baloon[j] = new Baloon(j%3,Math.floor(j/3))
+						baloon[j] = new Baloon(j%6,Math.floor(j/6))
 					}
 				};
 				break
@@ -143,8 +143,8 @@ function handle(e) {
 		}
 	}
 	if (baloon.length == 0) {
-		for (var i = 0; i < 15; i++) {
-			baloon.push(new Baloon(i%3,Math.floor(i/3)))
+		for (var i = 0; i < 48; i++) {
+			baloon.push(new Baloon(i%6,Math.floor(i/6)))
 		}
 		draw()
 	}
@@ -172,7 +172,7 @@ function drawInstructions() {
 	for (var i = 0; i < 4; i++) {
 		context.beginPath()
 		context.fillStyle = colors[i]
-		context.arc(introbaloon[i].x, introbaloon[i].y, introbaloon[i].radius, 0, 2 * Math.PI, false)
+		context.arc(introbaloon[i].x+70, introbaloon[i].y+100, introbaloon[i].radius, 0, 2 * Math.PI, false)
 		context.fill()
 		context.strokeStyle = bordercolors[i]
 		context.stroke()
@@ -180,14 +180,14 @@ function drawInstructions() {
 }
 function draw() {
 	drawFrame()
-	context.lineWidth += 0.1
-	if (context.lineWidth>5) 
-		context.lineWidth = 1
+	context.lineWidth += 0.05
+	if (context.lineWidth>2.5) 
+		context.lineWidth = 0.5
 	for (var i = 0; i < baloon.length; i++) {
 		context.beginPath()
 		context.fillStyle = colors[baloon[i].color]
 		context.arc(baloon[i].x, baloon[i].y, baloon[i].radius, 0, 2 * Math.PI, false)
-		if (baloon[i].radius<35)
+		if (baloon[i].radius<20)
 			baloon[i].radius ++
 		context.fill()
 		context.strokeStyle = bordercolors[baloon[i].color]
@@ -204,7 +204,7 @@ function draw() {
 	    context.stroke();
 	    
 	}
-	setTimeout('draw()',20)
+	setTimeout('draw()',40)
 }
 </script>                    
 </body>
