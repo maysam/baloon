@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<metan name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>  
+    <meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<title>Math Baloon</title>
+	<script type="text/javascript" src="jquery.js"></script>
+	<style type="text/css">
+#canvas1 
+{
+    width: 100%;
+    height: 100%;
+}
+.canvasHolder {
+    width: 100%;
+    height: 100%;
+    display: -ms-grid;
+    -ms-grid-columns: 1fr;
+    -ms-grid-rows: 1fr;
+}
+#platformerCanvas {
+    -ms-grid-column: 1;
+    -ms-grid-row: 1;
+    -ms-grid-column-align: center;
+    -ms-grid-row-align: center;
+
+    -ms-transition-property: all;
+    -ms-transition-duration: 1s;
+    -ms-transition-timing-function: ease;
+}
+.moveRotation
+{
+    -ms-transform: perspective(500px) rotateY(-90deg) scale(0.1);
+    -webkit-transform: perspective(500px) scale(0);
+    -moz-transform: perspective(500px) rotateY(-90deg) scale(0.1);
+    -o-transform: scale(0);
+}
+
+.initialRotation
+{
+    -ms-transform: perspective(500px) rotateY(0deg) scale(1);
+    -webkit-transform: perspective(500px) scale(1);
+    -moz-transform: perspective(500px) rotateY(0deg) scale(1);
+    -o-transform: scale(1);
+}
+	</style>
+</head>
+<body>
+<canvas id="canvas" width="480" height="800" class="initialRotation"></canvas>
+<script type="text/javascript">
+window.addEventListener("resize", OnResizeCalled, false);
+var canvas
+function OnResizeCalled() {
+	console.log('resized')
+	var gameWidth = window.innerWidth;
+var gameHeight = window.innerHeight;
+var scaleToFitX = gameWidth / 800;
+var scaleToFitY = gameHeight / 480;
+
+var currentScreenRatio = gameWidth / gameHeight;
+var optimalRatio = Math.min(scaleToFitX, scaleToFitY);
+
+if (currentScreenRatio >= 1.77 && currentScreenRatio <= 1.79) {
+    canvas[0].style.width = gameWidth + "px";
+    canvas[0].style.height = gameHeight + "px";
+}
+else {
+    canvas[0].style.width = 800 * optimalRatio + "px";
+    canvas[0].style.height = 480 * optimalRatio + "px";
+}
+    //	canvas[0].style.width = window.innerWidth + 'px';
+    //	canvas[0].style.height = window.innerHeight + 'px';
+}
+	$(function init(){
+		canvas = $('#canvas')
+		canvas.mousedown(handle)
+        canvas.bind('touchmove', false);
+        $(document).bind('touchmove', false);
+		context = canvas[0].getContext("2d")
+		introbaloon.push(new Baloon(0.5, 2.5, 35))
+		introbaloon.push(new Baloon(1.5, 2.5, 35))
+		introbaloon.push(new Baloon(0.5, 3.5, 35))
+		introbaloon.push(new Baloon(1.5, 3.5, 35))
+		drawInstructions()
+	})
+	baloon = []
+	introbaloon = []
+	function Baloon(i, j, r) {
+		//	baloon object
+		//	random positioning if no position is given
+		//	i : 0..2 j : 0..5
+		if (i == undefined) 
+			i = Math.floor(Math.random()*3)
+		if (j == undefined) 
+			j = Math.floor(Math.random()*5)
+		if (r == undefined) 
+			r = 0
+		this.x = i*90+45+20+5
+		this.y = j*85+60
+		this.color = Math.floor(Math.random()*4)
+		this.radius = r
+	}
+	function maxColor(i) {
+		//	what is the color appearing most?
+		var count = [0, 0, 0, 0]
+		var max = i?i:0;
+		i = max
+		for (var j = 0; j < baloon.length; j++) {
+			var c = baloon[j].color
+			count[c] ++
+			if (count[c] > count[max])
+				max = c
+		}
+		if (count[i] >= count[max])
+			max = i
+		return max
+	}
+function handle(e) {
+	var x = e.pageX-canvas.offset().left;
+	var y = e.pageY-canvas.offset().top;
+
+	//x = x * windowpizza
+	  //  canvas[0].style.width = window.innerWidth + 'px';
+    //canvas[0].style.height = window.innerHeight + 'px';
+
+	for (var i = 0; i < baloon.length; i++) {
+		dist = (baloon[i].x-x)*(baloon[i].x-x) + (baloon[i].y-y)*(baloon[i].y-y) - 1225
+		if (dist < 0) {
+			c = baloon[i].color
+			d = maxColor(c)
+			if (c == d) {
+				//	new baloonss
+				for (var j = 0; j < baloon.length; j++) {
+					if (baloon[j].color == c) {
+						baloon[j] = new Baloon(j%3,Math.floor(j/3))
+					}
+				};
+				break
+			}
+		}
+	}
+	if (baloon.length == 0) {
+		for (var i = 0; i < 15; i++) {
+			baloon.push(new Baloon(i%3,Math.floor(i/3)))
+		}
+		draw()
+	}
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+}
+	colors = ['red', 'blue', 'yellow', 'green']
+	bordercolors = ['navy', 'black', 'brown', 'purple']
+function drawFrame () {
+	context.fillStyle = 'red';
+	context.fillRect(10,10,300,440);
+	context.fillStyle = 'white';
+	context.fillRect(20,20,280,420);	
+}
+function drawInstructions() {
+	drawFrame()
+	context.fillStyle = 'black'
+	context.font         = 'Italic Bold 30px Sans-Serif';
+	context.fillText( 'Pop the Color',70,100)
+	context.fillText( 'that appears most',30,150)
+	context.font         = 'Italic 18px Sans-Serif';
+	context.fillText( '(click anywhere to start)',70,200)
+	context.lineWidth = 5
+	for (var i = 0; i < 4; i++) {
+		context.beginPath()
+		context.fillStyle = colors[i]
+		context.arc(introbaloon[i].x, introbaloon[i].y, introbaloon[i].radius, 0, 2 * Math.PI, false)
+		context.fill()
+		context.strokeStyle = bordercolors[i]
+		context.stroke()
+	}	
+}
+function draw() {
+	drawFrame()
+	context.lineWidth += 0.1
+	if (context.lineWidth>5) 
+		context.lineWidth = 1
+	for (var i = 0; i < baloon.length; i++) {
+		context.beginPath()
+		context.fillStyle = colors[baloon[i].color]
+		context.arc(baloon[i].x, baloon[i].y, baloon[i].radius, 0, 2 * Math.PI, false)
+		if (baloon[i].radius<35)
+			baloon[i].radius ++
+		context.fill()
+		context.strokeStyle = bordercolors[baloon[i].color]
+		context.stroke()
+		r3 = baloon[i].radius/3
+		context.beginPath();
+	    context.arc(baloon[i].x-r3, baloon[i].y-r3, r3/2, 0, 2*Math.PI, false)
+	    context.stroke();
+		context.beginPath();
+	    context.arc(baloon[i].x+r3, baloon[i].y-r3, r3/2, 0, 2*Math.PI, false)
+	    context.stroke();
+		context.beginPath();
+	    context.arc(baloon[i].x, baloon[i].y-r3/2, r3*2, Math.PI/6, Math.PI*5/6, false)
+	    context.stroke();
+	    
+	}
+	setTimeout('draw()',20)
+}
+</script>                    
+</body>
+</html>
