@@ -1,211 +1,175 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<metan name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>  
-    <meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-	<title>Math Baloon</title>
-	<script type="text/javascript" src="jquery.js"></script>
-	<style type="text/css">
-#canvas1 
-{
-    width: 100%;
-    height: 100%;
-}
-.canvasHolder {
-    width: 100%;
-    height: 100%;
-    display: -ms-grid;
-    -ms-grid-columns: 1fr;
-    -ms-grid-rows: 1fr;
-}
-#platformerCanvas {
-    -ms-grid-column: 1;
-    -ms-grid-row: 1;
-    -ms-grid-column-align: center;
-    -ms-grid-row-align: center;
-
-    -ms-transition-property: all;
-    -ms-transition-duration: 1s;
-    -ms-transition-timing-function: ease;
-}
-.moveRotation
-{
-    -ms-transform: perspective(500px) rotateY(-90deg) scale(0.1);
-    -webkit-transform: perspective(500px) scale(0);
-    -moz-transform: perspective(500px) rotateY(-90deg) scale(0.1);
-    -o-transform: scale(0);
-}
-
-.initialRotation
-{
-    -ms-transform: perspective(500px) rotateY(0deg) scale(1);
-    -webkit-transform: perspective(500px) scale(1);
-    -moz-transform: perspective(500px) rotateY(0deg) scale(1);
-    -o-transform: scale(1);
-}
-	</style>
+<style type="text/css">
+		#second circle {
+		stroke: black;
+		/*r: 12;*/
+		stroke-width :1.5px ;
+	}
+</style>
 </head>
-<body>
-<canvas id="canvas" width="480" height="800" class="initialRotation"></canvas>
+<body onmousedown="start()" touch = "start">
+<svg id="first" width="250" height="500" display="block" >
+	<polyline points="17.5,20 175,20 175,300 20,300 20,20" style="fill:none ; stroke:red ; stroke-width:5px " />
+	<text x="30" y="50" style="fill:black ; font-size:20px ; font-weight:bold ; font-style:italic">
+		<tspan x="40" y="70">Pop the Color</tspan>
+		<tspan x="30" y="90">that apears most</tspan>
+		<tspan style="font-size:12px " x="63" y="120">(click to start)</tspan>
+	</text>
+	<circle cx="80" cy="190" r="15" fill="red" stroke="blue" stroke-width="3px" />
+	<circle cx="115" cy="190" r="15" fill="blue" stroke="black" stroke-width="3px" />
+	<circle cx="80" cy="225" r="15" fill="yellow" stroke="red" stroke-width="3px" />
+	<circle cx="115" cy="225" r="15" fill="green" stroke="purple" stroke-width="3px" />
+</svg>
+<svg id="second" width="250" height="500" display="none" >
+	<polyline points="17.5,20 175,20 175,300 20,300 20,20" style="fill:none ; stroke:red ; stroke-width:5px " />
+	<text id= "correct" x="75" y="15" display="none" style="font-size:18px ; fill:DarkMagenta " > correct
+	</text>
+	<text id="wrong" x="75" y="15" display="none" style="font-size:18px ; fill:DarkMagenta  "> wrong
+	</text>
+</svg>
 <script type="text/javascript">
-window.addEventListener("resize", OnResizeCalled, false);
-var canvas
-function OnResizeCalled() {
-	console.log('resized')
-	var gameWidth = window.innerWidth;
-var gameHeight = window.innerHeight;
-var scaleToFitX = gameWidth / 800;
-var scaleToFitY = gameHeight / 480;
+ var color_count = [0,0,0,0]
+ var intro_svg, main_svg
+ var counter
+ var max =-1, max_color=-1 , max_color2 = -1 , tr=2
+ var color = ["red" , "blue" , "green" , "yellow"]
+ function start() {
+	intro_svg = document.getElementById("first")
+	main_svg = document.getElementById("second")
+  	if (intro_svg.getAttribute("display") == "block") {
+ 		intro_svg.setAttribute("display" , "none")
+ 		main_svg.setAttribute("display" , "block")
+ 		// start2()
+ 		color_count = [0,0,0,0]
+	 	max_color = -1
+	 	max_color2 = -1
+	 	max = -1
+	 	for (var j = 1; j <= 7; j++) {
+	 			for (var i = 1; i <= 4; i++) {
+	 				var color_number = Math.floor(Math.random()*4)
+	 				counter = (j-1)*4 + i
+	 				circle = document.createElementNS('http://www.w3.org/2000/svg', "circle")
+	   				circle.setAttribute("cx" ,43+(36*(i-1)))
+	 				circle.setAttribute("cy" ,50+(36*(j-1)))
+	 				circle.setAttribute("r" , 2)
+	 				circle.setAttribute("fill" , color[color_number])
+	 				// circle.setAttribute("stroke" , "black")
+	 				// circle.setAttribute("stroke-width" , "0px")
+	 				circle.setAttribute("onmousedown" , "result(this)")
+	 				circle.setAttribute("touch" , "result(this)")
+	 				// circle.setAttribute("id" , counter)
+ 					circle.setAttribute("class" , color[color_number])
+	  				main_svg.appendChild(circle)
+	  				color_count[color_number] ++
 
-var currentScreenRatio = gameWidth / gameHeight;
-var optimalRatio = Math.min(scaleToFitX, scaleToFitY);
+	   	  			};
+	 			
+	  		};
+	  		timer()
+	  		// change = document.getElementsByClassName("yellow")
+  		for (var i = 0; i <= 3; i++) {
+ 		if (max <= color_count[i]) {
+ 			max = color_count[i]
+ 			max_color = i
+ 		};
+ 		
+ 		};
+ 		for (var i = 0; i <= 3; i++) {
+ 			if ((max == color_count[i]) && (max_color != i)) {
+ 				max_color2 = i
+ 			};
+ 		};
+ 		// alert(12)
+ 	}
+  }
 
-if (currentScreenRatio >= 1.77 && currentScreenRatio <= 1.79) {
-    canvas[0].style.width = gameWidth + "px";
-    canvas[0].style.height = gameHeight + "px";
-}
-else {
-    canvas[0].style.width = 800 * optimalRatio + "px";
-    canvas[0].style.height = 480 * optimalRatio + "px";
-}
-    //	canvas[0].style.width = window.innerWidth + 'px';
-    //	canvas[0].style.height = window.innerHeight + 'px';
-}
-	$(function init(){
-		canvas = $('#canvas')
-		canvas.mousedown(handle)
-        canvas.bind('touchmove', false);
-        $(document).bind('touchmove', false);
-		context = canvas[0].getContext("2d")
-		introbaloon.push(new Baloon(0.45, 2.55, 20))
-		introbaloon.push(new Baloon(1.5, 2.55, 20))
-		introbaloon.push(new Baloon(0.45, 3.5, 20))
-		introbaloon.push(new Baloon(1.5, 3.5, 20))
-		drawInstructions()
-	})
-	baloon = []
-	introbaloon = []
-	function Baloon(i, j, r) {
-		//	baloon object
-		//	random positioning if no position is given
-		//	i : 0..2 j : 0..5
-		if (i == undefined) 
-			i = Math.floor(Math.random()*3)
-		if (j == undefined) 
-			j = Math.floor(Math.random()*5)
-		if (r == undefined) 
-			r = 0
-		this.x = i*45+45
-		this.y = j*50+60
-		this.color = Math.floor(Math.random()*4)
-		this.radius = r
-	}
-	function maxColor(i) {
-		//	what is the color appearing most?
-		var count = [0, 0, 0, 0]
-		var max = i?i:0;
-		i = max
-		for (var j = 0; j < baloon.length; j++) {
-			var c = baloon[j].color
-			count[c] ++
-			if (count[c] > count[max])
-				max = c
-		}
-		if (count[i] >= count[max])
-			max = i
-		return max
-	}
-function handle(e) {
-	var x = e.pageX-canvas.offset().left;
-	var y = e.pageY-canvas.offset().top;
+     	 	
+ 
+ function start2() {
+ 	// color_count = [0,0,0,0]
+	change = document.getElementsByClassName(color[max_color])
+	// change2 = document.getElementsByClassName(color[max_color2])
+	// console.log("start2: ",color_count[max_color] , max)
+	color_count[max_color] =  color_count[max_color] - max
+	// color_count[max_color2] =  color_count[max_color2] - max
+ 	for (var j = max-1; j >= 0; j--) {
+ 			var color_number = Math.floor(Math.random()*4)
+ 			// console.log(r)
+ 			// console.log()
+ 			change[j].setAttribute("fill" , color[color_number])
+ 			change[j].setAttribute("r" , 2)
+ 			change[j].setAttribute("class" , color[color_number])
+ 			// change2[j].setAttribute("fill" , color[color_number])
+ 			color_count[color_number] ++
+ 			
+  		};
+  	max_color = -1
+ 	max_color2 = -1
+ 	max = -1
+ 	// timer()
+  	for (var i = 0; i <= 3; i++) {
+ 		if (max <= color_count[i]) {
+ 			max = color_count[i]
+ 			max_color = i
+ 		};
+ 		
+ 	};
+ 	for (var i = 0; i <= 3; i++) {
+ 			if ((max == color_count[i]) && (max_color != i)) {
+ 				max_color2 = i
+ 			};
+ 		};
+ }
+ function timer() {
+  	circles = document.getElementsByTagName("circle")
+  	for (var i = circles.length - 1; i >= 4; i--) {
 
-	//x = x * windowpizza
-	  //  canvas[0].style.width = window.innerWidth + 'px';
-    //canvas[0].style.height = window.innerHeight + 'px';
+  		// circles[i].setAttribute("r" , tr)
+  		if (circles[i].getAttribute("r") < 15) {
+  			circles[i].setAttribute( "r" , Number(circles[i].getAttribute("r")) + 0.1 )
+  		};
 
-	for (var i = 0; i < baloon.length; i++) {
-		dist = (baloon[i].x-x)*(baloon[i].x-x) + (baloon[i].y-y)*(baloon[i].y-y) - 1225
-		if (dist < 0) {
-			c = baloon[i].color
-			d = maxColor(c)
-			if (c == d) {
-				//	new baloonss
-				for (var j = 0; j < baloon.length; j++) {
-					if (baloon[j].color == c) {
-						baloon[j] = new Baloon(j%6,Math.floor(j/6))
-					}
-				};
-				break
-			}
-		}
-	}
-	if (baloon.length == 0) {
-		for (var i = 0; i < 48; i++) {
-			baloon.push(new Baloon(i%6,Math.floor(i/6)))
-		}
-		draw()
-	}
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
+  	};
+ 	
+		setTimeout('timer()' , 10)
+ 	
 }
-	colors = ['red', 'blue', 'yellow', 'green']
-	bordercolors = ['navy', 'black', 'brown', 'purple']
-function drawFrame () {
-	context.fillStyle = 'red';
-	context.fillRect(10,10,300,440);
-	context.fillStyle = 'white';
-	context.fillRect(20,20,280,420);	
-}
-function drawInstructions() {
-	drawFrame()
-	context.fillStyle = 'black'
-	context.font         = 'Italic Bold 30px Sans-Serif';
-	context.fillText( 'Pop the Color',70,100)
-	context.fillText( 'that appears most',30,150)
-	context.font         = 'Italic 18px Sans-Serif';
-	context.fillText( '(click anywhere to start)',70,200)
-	context.lineWidth = 5
-	for (var i = 0; i < 4; i++) {
-		context.beginPath()
-		context.fillStyle = colors[i]
-		context.arc(introbaloon[i].x+70, introbaloon[i].y+100, introbaloon[i].radius, 0, 2 * Math.PI, false)
-		context.fill()
-		context.strokeStyle = bordercolors[i]
-		context.stroke()
-	}	
-}
-function draw() {
-	drawFrame()
-	context.lineWidth += 0.05
-	if (context.lineWidth>2.5) 
-		context.lineWidth = 0.5
-	for (var i = 0; i < baloon.length; i++) {
-		context.beginPath()
-		context.fillStyle = colors[baloon[i].color]
-		context.arc(baloon[i].x, baloon[i].y, baloon[i].radius, 0, 2 * Math.PI, false)
-		if (baloon[i].radius<20)
-			baloon[i].radius ++
-		context.fill()
-		context.strokeStyle = bordercolors[baloon[i].color]
-		context.stroke()
-		r3 = baloon[i].radius/3
-		context.beginPath();
-	    context.arc(baloon[i].x-r3, baloon[i].y-r3, r3/2, 0, 2*Math.PI, false)
-	    context.stroke();
-		context.beginPath();
-	    context.arc(baloon[i].x+r3, baloon[i].y-r3, r3/2, 0, 2*Math.PI, false)
-	    context.stroke();
-		context.beginPath();
-	    context.arc(baloon[i].x, baloon[i].y-r3/2, r3*2, Math.PI/6, Math.PI*5/6, false)
-	    context.stroke();
-	    
-	}
-	setTimeout('draw()',40)
-}
-</script>                    
+// function timer2() {
+// 	// alert(5)
+// 	circles = document.getElementsByTagName("circle")
+// 	for (var i = circles.length - 1; i >= 4; i--) {
+		// if (13 < circles[i].getAttribute("r") < 14) {
+			// circles[i].setAttribute( "stroke-width" , (Number(circles[i].getAttribute("stroke-width") - "px") + 0.5) + "px" )
+		// }
+		// console.log(Number(circles[i].getAttribute("stroke-width")))
+
+		
+// 	}
+// 	setTimeout('timer2()' , 1)
+// }
+ function result(circle) {	
+ 	if ((circle.getAttribute("fill") == color[max_color]) || (circle.getAttribute("fill") == color[max_color2])) {
+ 		document.getElementById("wrong").setAttribute("display" , "none")
+ 		document.getElementById("correct").setAttribute("display" , "block")
+
+ 		start2()
+ 		tr = 5
+ 		// timer()
+ 		
+ 	}
+ 	else {
+ 		// alert("Try again")
+ 		document.getElementById("wrong").setAttribute("display" , "block")
+ 		document.getElementById("correct").setAttribute("display" , "none")
+
+
+ 	}
+ 	
+ }
+ 	
+
+</script>
 </body>
 </html>
