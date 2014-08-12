@@ -4,172 +4,408 @@
 <style type="text/css">
 		#second circle {
 		stroke: black;
-		/*r: 12;*/
 		stroke-width :1.5px ;
 	}
+  .text_count, circle {
+    cursor: pointer;
+  }
+  .text_count {
+    fill: black;
+  }
+
+  svg text {
+    alignment-baseline: middle;
+    text-anchor: middle 
+  }
+
+  
 </style>
 </head>
-<body onmousedown="start()" touch = "start">
+<body  style="background-color: #B09BDA ; margin:0">
 <svg id="first" width="250" height="500" display="block" >
-	<polyline points="17.5,20 175,20 175,300 20,300 20,20" style="fill:none ; stroke:red ; stroke-width:5px " />
-	<text x="30" y="50" style="fill:black ; font-size:20px ; font-weight:bold ; font-style:italic">
-		<tspan x="40" y="70">Pop the Color</tspan>
-		<tspan x="30" y="90">that apears most</tspan>
-		<tspan style="font-size:12px " x="63" y="120">(click to start)</tspan>
+	<polyline id="polyline"  style="fill:none ; stroke:red ; stroke-width:5 " />
+	<text   style="fill:black ; font-size:20px ; font-weight:bold ; font-style:italic">
+		<tspan id="start_text1" x="40" y="70">Pop the Color</tspan>
+		<tspan id="start_text2" x="30" y="90">that apears most</tspan>
+		<tspan id="start_text3" style="font-size:12px " x="63" y="120">(choose your level)</tspan>
 	</text>
-	<circle cx="80" cy="190" r="15" fill="red" stroke="blue" stroke-width="3px" />
-	<circle cx="115" cy="190" r="15" fill="blue" stroke="black" stroke-width="3px" />
-	<circle cx="80" cy="225" r="15" fill="yellow" stroke="red" stroke-width="3px" />
-	<circle cx="115" cy="225" r="15" fill="green" stroke="purple" stroke-width="3px" />
+	<circle id="start_circle1"  fill="red" stroke="blue" stroke-width="2px" />
+	<circle id="start_circle2"  fill="DeepSkyBlue" stroke="black" stroke-width="2px" />
+	<circle id="start_circle3"  fill="yellow" stroke="red" stroke-width="2px" />
+	<circle id="start_circle4"  fill="LimeGreen" stroke="purple" stroke-width="2px" />
+  <text id="level1" style="cursor:pointer"> 1
+  </text>
+  <text id="level2" style="cursor:pointer"> 2
+  </text>
+  <text id="level3" style="cursor:pointer"> 3
+  </text>
+  <text id="level4" style="cursor:pointer"> 4
+  </text>
+
 </svg>
 <svg id="second" width="250" height="500" display="none" >
-	<polyline points="17.5,20 175,20 175,300 20,300 20,20" style="fill:none ; stroke:red ; stroke-width:5px " />
-	<text id= "correct" x="75" y="15" display="none" style="font-size:18px ; fill:DarkMagenta " > correct
+	<polyline id="polyline2"  style="fill:none ; stroke:red ; stroke-width:5" />
+	<text id= "correct" display="none" style="font-size:18px ; fill:DarkMagenta " > correct
 	</text>
-	<text id="wrong" x="75" y="15" display="none" style="font-size:18px ; fill:DarkMagenta  "> wrong
-	</text>
+  <text id= "wrong" display="none" style="font-size:18px ; fill:DarkMagenta " > wrong
+  </text>
+  <text id = "score" display="none" style=" fill:blac "> 0 
+  </text>
+	
 </svg>
+
 <script type="text/javascript">
- var color_count = [0,0,0,0]
- var intro_svg, main_svg
- var counter
- var max =-1, max_color=-1 , max_color2 = -1 , tr=2
- var color = ["red" , "blue" , "green" , "yellow"]
- function start() {
-	intro_svg = document.getElementById("first")
-	main_svg = document.getElementById("second")
+  // function circle(r) {
+  //   this.radius = r;
+  //   this.x = 2
+  //   this.y = 5
+  //   this.draw = function draw(main_svg) {
+
+
+
+  //   }
+  //   return this
+  // }
+
+  // example = circle(10)
+  // example.draw(main_svg)
+  var color_numbers = 10
+  var initial_state = [30, 30, 30, 0] 
+  var height  = window.innerHeight
+  var width = window.innerWidth
+  var circles_r = 25
+  var thickness = circles_r /2.8   
+  var circle_stroke = 1.5 
+  var circles_rt = circles_r + circle_stroke
+  var circles_column = Math.floor(5 * (9*width/22 + circles_rt)/(6*circles_rt))
+  var circles_row = Math.floor(5 * (15*height/34 + circles_rt)/(6*circles_rt))
+  circles_rt = width*9/(11*(2.4*circles_column))
+  circles_r = circles_rt - circle_stroke
+  var box_height = (circles_rt) * (2.4*circles_row) 
+  var circle_number = 4
+  var text_count = 10
+  var circles_count = circles_row*circles_column
+  var circles2 = [[],[],[]]
+  var counter
+  var color_count = []
+  var intro_svg, main_svg
+  var max = -1, max_color = -1, max_color2 = -1 ,tr = 2 ,max_colors = []
+  var color = ["Tomato" , "DeepSkyBlue" , "LimeGreen" , "yellow", "pink", "orange", "Chocolate", "Plum", "lightblue", "gray"]
+  size()
+  var points = 11
+  var score = 0
+  var time_to_timeout = 400/(circles_count)
+
+
+
+
+  function size() {
+   	document.getElementById("first").setAttribute("width" , width)
+   	document.getElementById("first").setAttribute("height" , height )
+   	document.getElementById("second").setAttribute("width" , width)
+   	document.getElementById("second").setAttribute("height" , height )
+   	document.getElementById("wrong").setAttribute("x", width/2)
+   	document.getElementById("correct").setAttribute("x", width/2)
+   	document.getElementById("wrong").setAttribute("y", height /34)
+   	document.getElementById("correct").setAttribute("y", height /34)
+    document.getElementById("score").setAttribute("x", width/22)
+    document.getElementById("score").setAttribute("y", height /2)
+    document.getElementById("score").setAttribute("transform" , "rotate( -90, " + width/22 + " , " +height /2+ " )")
+    document.getElementById("score").setAttribute("font-size" , circles_r)
+   	document.getElementById("start_text1").setAttribute("x", width/2)
+    document.getElementById("start_text2").setAttribute("x", width/2)
+    document.getElementById("start_text3").setAttribute("x", width/2)
+    document.getElementById("start_circle1").setAttribute("cx", width/2 - circles_rt*4/3)
+    document.getElementById("start_circle2").setAttribute("cx", width/2 + circles_rt*4/3)
+    document.getElementById("start_circle3").setAttribute("cx", width/2 + circles_rt*4/3)
+    document.getElementById("start_circle4").setAttribute("cx", width/2 - circles_rt*4/3)
+    document.getElementById("start_circle1").setAttribute("cy", height /2 - circles_rt*4/3)
+    document.getElementById("start_circle2").setAttribute("cy", height /2 - circles_rt*4/3)
+    document.getElementById("start_circle3").setAttribute("cy", height /2 + circles_rt*4/3)
+    document.getElementById("start_circle4").setAttribute("cy", height /2 + circles_rt*4/3)
+    document.getElementById("level1").setAttribute("x" , width/2 - circles_rt*4/3)
+    document.getElementById("level1").setAttribute("y" , height /2 - circles_rt*4/3)
+    document.getElementById("level2").setAttribute("x" , width/2 + circles_rt*4/3)
+    document.getElementById("level2").setAttribute("y" , height /2 - circles_rt*4/3)
+    document.getElementById("level3").setAttribute("x" , width/2 - circles_rt*4/3)
+    document.getElementById("level3").setAttribute("y" , height /2 + circles_rt*4/3)
+    document.getElementById("level4").setAttribute("x" , width/2 + circles_rt*4/3)
+    document.getElementById("level4").setAttribute("y" , height /2 + circles_rt*4/3)
+    for (var i = 1; i <= 4; i++) {
+      document.getElementById("level" + i).setAttribute("fill" , "black" )
+      document.getElementById("level" + i).setAttribute("font-size" , circles_r)
+      document.getElementById("level" + i).setAttribute("touch" , "start("+2*i+")")
+      document.getElementById("level" + i).setAttribute("onmousedown" , "start("+2*i+")")
+      document.getElementById("start_circle" + i).setAttribute("touch" , "start("+2*i+")")
+      document.getElementById("start_circle" + i).setAttribute("onmousedown" , "start("+2*i+")")
+    };
+   	var polyline = document.getElementById("polyline")
+   	var polyline2 = document.getElementById("polyline2")
+   	polyline.setAttribute("style" , "fill:#66FF99; stroke:red; stroke-width:"+thickness/2 )
+   	polyline2.setAttribute("style" , "fill:#66FF99; stroke:red; stroke-width:"+thickness/2)
+   	polyline.setAttribute("points" , (width/11-thickness/4)+","+(height/17)+" "+(width*10/11)+","+(height/17)+" "+(width*10/11)+","+(height/17+box_height)+" "+(width/11)+","+(height/17+box_height)+" "+(width/11)+","+height/17)
+   	polyline2.setAttribute("points" , (width/11-thickness/4)+","+(height/17)+" "+(width*10/11)+","+(height/17)+" "+(width*10/11)+","+(height/17+box_height)+" "+(width/11)+","+(height/17+box_height)+" "+(width/11)+","+height /17)
+   	var circles = document.getElementsByTagName("circle")
+
+   	for (var i = 0; i < circles.length; i++) {
+   		circles[i].setAttribute( "r" , circles_r)
+   	};
+
+
+   }
+
+
+
+
+
+   function start(color_numbers) {
+    color_numbers = color_numbers + 2
+  	intro_svg = document.getElementById("first")
+  	main_svg = document.getElementById("second")
   	if (intro_svg.getAttribute("display") == "block") {
  		intro_svg.setAttribute("display" , "none")
  		main_svg.setAttribute("display" , "block")
- 		// start2()
- 		color_count = [0,0,0,0]
+    timer_scoring()
 	 	max_color = -1
 	 	max_color2 = -1
 	 	max = -1
-	 	for (var j = 1; j <= 7; j++) {
-	 			for (var i = 1; i <= 4; i++) {
-	 				var color_number = Math.floor(Math.random()*4)
-	 				counter = (j-1)*4 + i
-	 				circle = document.createElementNS('http://www.w3.org/2000/svg', "circle")
-	   				circle.setAttribute("cx" ,43+(36*(i-1)))
-	 				circle.setAttribute("cy" ,50+(36*(j-1)))
-	 				circle.setAttribute("r" , 2)
-	 				circle.setAttribute("fill" , color[color_number])
-	 				// circle.setAttribute("stroke" , "black")
-	 				// circle.setAttribute("stroke-width" , "0px")
-	 				circle.setAttribute("onmousedown" , "result(this)")
-	 				circle.setAttribute("touch" , "result(this)")
-	 				// circle.setAttribute("id" , counter)
- 					circle.setAttribute("class" , color[color_number])
-	  				main_svg.appendChild(circle)
-	  				color_count[color_number] ++
+    counter = 0
+    document.getElementById("score").setAttribute("display" , "block")
 
-	   	  			};
-	 			
-	  		};
+
+
+// makes circles color and  radius
+    number = initial_state[0]
+    color_number = 0
+    for (var i = 0; i < circles_count; i++) {   
+      
+      // for (var j = 0; j < initial_state.length; j++) {
+      //   if (i < number) {
+      //     circles2[0].push(color_number)
+      //     break
+      //   }
+      //   else {
+      //     color_number++
+      //     number = number + initial_state[color_number]
+      //   }
+      // }    
+      circles2[0].push(Math.floor(Math.random()*color_numbers)) 
+      circles2[1].push(circles_r)
+    }
+
+    
+   
+
+// push circles count in color_count,circle2 array
+    for (var i = 0; i < color_numbers; i++) {
+      color_count.push(0)
+    };
+    for (var i = 0; i < circles_count; i++) {
+      color_count[circles2[0][i]]++
+    };
+    for (var i = 0; i < circles_count; i++) {
+      circles2[2].push(color_count[circles2[0][i]])
+    };
+
+
+
+// draw cicles
+	 	for (var j = 1; j <= circles_row; j++) {
+	 			for (var i = 1; i <= circles_column; i++) {
+          color_number = circles2[0][counter]
+	 				circle = document.createElementNS('http://www.w3.org/2000/svg', "circle")
+	 				circle.setAttribute("cx" ,width/11 + 1.2*circles_rt + (i-1)*2.4*circles_rt )
+          circle.setAttribute("cy" ,height/17 + 1.2*circles_rt + (j-1)*2.4*circles_rt )
+	 				circle.setAttribute("r" , 1)
+	 				circle.setAttribute("fill" , color[color_number])
+	 				circle.setAttribute("onmousedown" , "result("+color_number+")")
+	 				circle.setAttribute("touch" , "result("+color_number+")")
+ 					circle.setAttribute("class" , color[color_number])
+	  			main_svg.appendChild(circle)
+          counter++
+	   	  };
+	  };
+    counter = 0
+
+
+
+// draw texts
+    for (var j = 1; j <= circles_row; j++) {
+        for (var i = 1; i <= circles_column; i++) {
+              text = document.createElementNS('http://www.w3.org/2000/svg' , "text")
+              main_svg.appendChild(text)
+              horizontal_part = width/11
+              text.innerHTML = circles2[2][counter]
+              text.setAttribute("class" , "text_count")
+              text.setAttribute("x" ,width/11 + 1.2*circles_rt + (i-1)*2.4*circles_rt)
+              text.setAttribute("y" ,height/17 + 1.2*circles_rt + (j-1)*2.4*circles_rt)
+              text.setAttribute("font-size" , 1 )
+              text.setAttribute("text-anchor" , "middle")
+              text.setAttribute("alignment-baseline" , "middle")
+              text.setAttribute("onmousedown" , "result("+circles2[0][counter]+")")
+              text.setAttribute("touch" , "result("+circles2[0][counter]+")")
+              counter++
+              };
+        };
 	  		timer()
-	  		// change = document.getElementsByClassName("yellow")
-  		for (var i = 0; i <= 3; i++) {
+
+
+
+// Find maximom color's amount
+    // _.each(color_count,function(c){
+    //   i=9
+    //   if(max <= c) max  = c
+    // })
+
+  		for (var i = 0; i < color_numbers; i++) {
  		if (max <= color_count[i]) {
  			max = color_count[i]
- 			max_color = i
  		};
  		
  		};
- 		for (var i = 0; i <= 3; i++) {
- 			if ((max == color_count[i]) && (max_color != i)) {
- 				max_color2 = i
+ 		for (var i = 0; i < color_numbers; i++) {
+ 			if (max == color_count[i]) {
+ 				max_colors.push(i)
  			};
  		};
- 		// alert(12)
  	}
   }
 
-     	 	
+     	
+
+
  
- function start2() {
- 	// color_count = [0,0,0,0]
-	change = document.getElementsByClassName(color[max_color])
-	// change2 = document.getElementsByClassName(color[max_color2])
-	// console.log("start2: ",color_count[max_color] , max)
-	color_count[max_color] =  color_count[max_color] - max
-	// color_count[max_color2] =  color_count[max_color2] - max
- 	for (var j = max-1; j >= 0; j--) {
- 			var color_number = Math.floor(Math.random()*4)
- 			// console.log(r)
- 			// console.log()
- 			change[j].setAttribute("fill" , color[color_number])
- 			change[j].setAttribute("r" , 2)
- 			change[j].setAttribute("class" , color[color_number])
- 			// change2[j].setAttribute("fill" , color[color_number])
- 			color_count[color_number] ++
- 			
-  		};
-  	max_color = -1
- 	max_color2 = -1
- 	max = -1
- 	// timer()
-  	for (var i = 0; i <= 3; i++) {
- 		if (max <= color_count[i]) {
- 			max = color_count[i]
- 			max_color = i
- 		};
- 		
- 	};
- 	for (var i = 0; i <= 3; i++) {
- 			if ((max == color_count[i]) && (max_color != i)) {
- 				max_color2 = i
- 			};
- 		};
+ function start2(click) {
+
+
+
+// change text font size to 1
+  text_count = 0
+  text = document.getElementsByClassName("text_count")
+  for (var i = 0; i < circles_count; i++) {
+    if (click == circles2[0][i]) {
+      text[i].setAttribute("font-size", 1)
+    };
+  };
+
+
+
+// change circles2's array, color, class, OnMouse_functions color_count
+  text = document.getElementsByClassName("text_count")
+  circles = document.getElementsByTagName("circle")
+  color_count[click] = 0
+  for (var i = document.getElementsByTagName("circle").length - 5 ; i >= 0; i--) {
+    if (click == circles2[0][i]) {
+      color_number = Math.floor(Math.random()*4)    
+      circles2[0][i] = color_number
+      color_count[color_number]++
+      circle = circles[i + 4]
+      circle.setAttribute("r" , 1)
+      circle.setAttribute("fill" , color[color_number])
+      circle.setAttribute("class" , color[color_number])
+      circle.setAttribute("onmousedown" , "result("+color_number+")")
+      circle.setAttribute("touch" , "result("+color_number+")")
+    };
+  };
+
+
+
+  for (var i = 0; i < circles2[0].length; i++) {
+    circles2[2][i] = color_count[circles2[0][i]]
+  };
+
+
+
+// Find new max color
+  max = -1
+  max_colors = []
+  for (var i = 0; i < color_numbers ; i++) {
+    if (max <= color_count[i]) {
+      max = color_count[i]
+    };
+    
+    };
+    for (var i = 0; i < color_numbers ; i++) {
+      if (max == color_count[i]) {
+        max_colors.push(i)
+      };
+    };
+
+
+
+// change text inerHTML , functions
+  text = null
+  text = document.getElementsByClassName("text_count")
+  for (var i = 0; i < circles_count ; i++) {
+    text[i].innerHTML = circles2[2][i]
+    text[i].setAttribute("onmousedown" , "result("+circles2[0][i]+")")
+    text[i].setAttribute("touch" , "result("+circles2[0][i]+")")
+  }
  }
- function timer() {
-  	circles = document.getElementsByTagName("circle")
-  	for (var i = circles.length - 1; i >= 4; i--) {
 
-  		// circles[i].setAttribute("r" , tr)
-  		if (circles[i].getAttribute("r") < 15) {
-  			circles[i].setAttribute( "r" , Number(circles[i].getAttribute("r")) + 0.1 )
-  		};
 
-  	};
- 	
-		setTimeout('timer()' , 10)
- 	
+
+
+
+function timer() {
+  inc = 0.5
+  setTimeout('timer()' ,time_to_timeout)
+  text = document.getElementsByClassName("text_count")
+  circles = document.getElementsByTagName("circle")
+  for (var i = circles.length - 1; i >= 4; i--) {
+  	if (circles[i].getAttribute("r") < circles_r) {
+  		circles[i].setAttribute( "r" , Number(circles[i].getAttribute("r")) + inc )
+      if (text[i-4])
+      text[i-4].setAttribute( "font-size" , Number(text[i-4].getAttribute("font-size")) + inc )
+  	}
+  }
 }
-// function timer2() {
-// 	// alert(5)
-// 	circles = document.getElementsByTagName("circle")
-// 	for (var i = circles.length - 1; i >= 4; i--) {
-		// if (13 < circles[i].getAttribute("r") < 14) {
-			// circles[i].setAttribute( "stroke-width" , (Number(circles[i].getAttribute("stroke-width") - "px") + 0.5) + "px" )
-		// }
-		// console.log(Number(circles[i].getAttribute("stroke-width")))
 
-		
-// 	}
-// 	setTimeout('timer2()' , 1)
-// }
- function result(circle) {	
- 	if ((circle.getAttribute("fill") == color[max_color]) || (circle.getAttribute("fill") == color[max_color2])) {
+function result(color_code) {	
+ 	if (max_colors.indexOf(color_code) >= 0 ) {
  		document.getElementById("wrong").setAttribute("display" , "none")
  		document.getElementById("correct").setAttribute("display" , "block")
-
- 		start2()
- 		tr = 5
- 		// timer()
- 		
+    scoring()
+ 		start2(color_code)
+    
  	}
  	else {
- 		// alert("Try again")
  		document.getElementById("wrong").setAttribute("display" , "block")
  		document.getElementById("correct").setAttribute("display" , "none")
-
-
  	}
- 	
  }
- 	
 
+
+
+
+
+function timer_scoring() {
+  if (points > 0 ) {
+    points--
+    document.getElementById("score").innerHTML = points + "  your score: " + score
+    setTimeout('timer_scoring()' , 1000)
+  }
+  // else {
+  //   points = 10
+  //   document.getElementById("score").innerHTML = points + "  your score: " + score
+  // }
+}
+
+
+
+
+
+function scoring() {
+  score = score + points
+  document.getElementById("score").innerHTML ="10" + " your score: " + score
+  if (points == 0) {
+      points = 11
+      timer_scoring()
+    }
+  else {
+    points = 11
+  }
+}
 </script>
 </body>
 </html>
