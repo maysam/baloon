@@ -22,6 +22,7 @@
 </head>
 <body  style='background-color: #B09BDA ; margin:0'>
 <svg id='first' width='250' height='500' display='block'  >
+<rect id = 'dpi' width='1in' height='1in' style= 'stroke-width:0 ; fill:none; stroke:black ' />
   <defs>
   <filter  id="F1" filterUnits="userSpaceOnUse" x="0" y="0" width="200%" height="120%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
@@ -91,16 +92,18 @@
   // }
   // example = circle(10)
   // example.draw(main_svg)
-  var color_numbers = 71
+  var color_numbers
+  var dpi = document.getElementById('dpi').getBBox().width
   var initial_state = [30, 30, 30, 0] 
   var height  = window.innerHeight
   var width = window.innerWidth
-  var circles_r = 25
+  var circles_r = dpi/4
+  console.log(circles_r)
   var circle_stroke = 1.5 
   var circles_rt = circles_r + circle_stroke
   var circles_column = Math.floor(5 * (9*width/22 + circles_rt)/(6*circles_rt))
-  var circles_row = Math.floor(5 * (15*height/34 + circles_rt)/(6*circles_rt))
   circles_rt = width*9/(11*(2.4*circles_column))
+  var circles_row = Math.floor(5 * (15*height/34 + circles_rt)/(6*circles_rt))
   circles_r = circles_rt - circle_stroke
   var box_height = (circles_rt) * (2.4*circles_row) 
   var circles_count = circles_row*circles_column
@@ -113,6 +116,7 @@
   var points = 11
   var score = 0
   var time_to_timeout = 1000/30
+  var showing_hint = false
   size()
 
   function size() {
@@ -206,6 +210,7 @@
     };
     counter = 0
 // draw texts
+  if (showing_hint == true) {
     for (var j = 1; j <= circles_row; j++) {
       for (var i = 1; i <= circles_column; i++) {
         text = $(document.createElementNS('http://www.w3.org/2000/svg' , 'text'))
@@ -224,6 +229,8 @@
         counter++
         };
       };
+  };
+    
     timer()
 // Find maximom color's amount
       for (var i = 0; i < color_numbers; i++) {
@@ -241,12 +248,15 @@
 
   function start2(click) {
 // change text font size to 1
+  if (showing_hint == true) {
     text = $('.text_count')
     for (var i = 0; i < circles_count; i++) {
       if (click == circles2[0][i]) {
         $(text[i]).attr('font-size', 1)
       };
     };
+  };
+    
 // change circles2's array, color, class, OnMouse_functions color_count
     circles = $('circle')
     color_count[click] = 0
@@ -294,18 +304,23 @@
       };
     };
 // change text inerHTML , functions
+  if (showing_hint == true) {
     texts = $('.text_count')
     texts.each(function (i, text) {
       $(text).text(circles2[2][i])
       $(text).attr('onmousedown' , 'result('+circles2[0][i]+')')
       $(text).attr('touch' , 'result('+circles2[0][i]+')')
     })
+  };
   }
 
   function timer() {
     inc = 1
     setTimeout('timer()' ,time_to_timeout)
-    text = $('.text_count')
+    if (showing_hint == true) {
+      text = $('.text_count')
+    };
+    
     circles = $('circle')
 
     circles.each(function (i, circle) {
@@ -314,8 +329,10 @@
         if (circle.attr('r') < circles_r) {
           // console.log(circles.length , circles_count)
           circle.attr( 'r' , Number(circle.attr('r')) + inc )
-          if (text[i-4])
+           if (showing_hint == true) {
             $(text[i-4]).attr( 'font-size' , Number($(text[i-4]).attr('font-size')) + inc )
+           };
+            
        }
     })
   }
