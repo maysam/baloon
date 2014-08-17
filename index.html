@@ -7,9 +7,10 @@
     stroke: black;
     stroke-width :1.5px ;
   }
-  .text_count, circle {
+  .text_count, circle, #hint_text {
     cursor: pointer;
   }
+
   .text_count {
     fill: black;
   }
@@ -22,6 +23,7 @@
 </head>
 <body  style='background-color: #B09BDA ; margin:0'>
 <svg id='first' width='250' height='500' display='block'  >
+  <rect id = 'dpi' width='1in' height='1in' style= 'stroke-width:0 ; fill:none; stroke:black ' />
   <defs>
   <filter  id="F1" filterUnits="userSpaceOnUse" x="0" y="0" width="200%" height="120%">
       <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
@@ -39,13 +41,13 @@
     </defs>
   <polyline id='polyline' filter="url(#F1)" style='fill:none ; stroke:red ; stroke-width:5 ' />
   <text  style='fill:black ; font-size:20px ; font-weight:bold ; font-style:italic'>
-    <tspan id='start_text1' x='40' y='70'>Pop the Color</tspan>
-    <tspan id='start_text2' x='30' y='90'>that apears most</tspan>
-    <tspan id='start_text3' style='font-size:12px ' x='63' y='120'>(choose your level)</tspan>
+    <tspan id='start_text1' style='font-size:24px' x='40' y='70'>Pop the Color</tspan>
+    <tspan id='start_text2' style='font-size:24px' x='30' y='90'>that apears most</tspan>
+    <tspan id='start_text3' style='font-size:12px' x='63' y='120'>(choose your level)</tspan>
   </text>
   <circle id='start_circle1'  fill='red' stroke='blue' stroke-width='2px' style="filter:url(#F1)" />
   <circle id='start_circle2' filter="url(#F1)" fill='DeepSkyBlue' stroke='black' stroke-width='2px' />
-  <circle id='start_circle3' filter="url(#F1)" fill='yellow' stroke='red' stroke-width='2px' />
+  <circle id='start_circle3' filter="url(#F1)" fill='Gold' stroke='red' stroke-width='2px' />
   <circle id='start_circle4' filter="url(#F1)" fill='LimeGreen' stroke='purple' stroke-width='2px' />
   <text id='level1' style='cursor:pointer'> 1
   </text>
@@ -72,10 +74,12 @@
       </feMerge>
     </filter>
   </defs>
+  <rect id ='hint' filter="url(#F2)" style='stroke-width:1 ; fill:lightblue; stroke:black' display='block' onmousedown="hint()" touch="hint()" />
+  <text id ='hint_text' display='block' onmousedown="hint()" touch="hint()">hint</text>
   <polyline filter="url(#F2)" id='polyline2'  style='fill:none ; stroke:red ; stroke-width:5' />
-  <text id= 'correct' display='none' style='fill:DarkMagenta ' > correct
-  </text>
-  <text id= 'wrong' display='none' style='fill:DarkMagenta ' > wrong
+  <!-- <text id= 'correct' display='none' style='fill:DarkMagenta ' > correct
+  </text> -->
+  <text id= 'status' style='fill:DarkMagenta ' > Pop the Color that apears most
   </text>
   <text id = 'score' display='none' style=' fill:blac '> 0 
   </text>
@@ -91,48 +95,87 @@
   // }
   // example = circle(10)
   // example.draw(main_svg)
-  var color_numbers = 71
+  var color_numbers
+  var dpi = document.getElementById('dpi').getBBox().width
   var initial_state = [30, 30, 30, 0] 
-  var height  = window.innerHeight
-  var width = window.innerWidth
-  var circles_r = 25
+  var _height  = window.innerHeight
+  var _width = window.innerWidth
+  // var _height  = 330
+  // var _width = 700
+  var circles_r = dpi/4
+  var max_row = 12
+  var max_column = 15
   var circle_stroke = 1.5 
   var circles_rt = circles_r + circle_stroke
-  var circles_column = Math.floor(5 * (9*width/22 + circles_rt)/(6*circles_rt))
-  var circles_row = Math.floor(5 * (15*height/34 + circles_rt)/(6*circles_rt))
-  circles_rt = width*9/(11*(2.4*circles_column))
+  var circles_column = Math.floor(5*(9*_width/22+circles_rt)/(6*circles_rt))
+  var circles_row
+// limit row,column max
+  if (circles_column > max_column) {
+    circles_column = max_column
+    circles_rt = _width*9/(11*(2.4*circles_column))
+    // circles_row = Math.floor(5 * (15*_height/34 + circles_rt)/(6*circles_rt))
+    circles_row = Math.floor(9*_height/(11*2.4*circles_rt))
+    if (circles_row > max_row) {
+      circles_row = max_row
+      circles_rt = _height*15/(17*(2.4*circles_row))
+      // circles_column = Math.floor(5 * (9*_width/22 + circles_rt)/(6*circles_rt))
+      circles_column = Math.floor(9*_width/(11*2.4*circles_rt))
+    }
+  }
+  else {
+    console.log(3)
+    circles_rt = _width*9/(11*(2.4*circles_column))
+    // circles_row = Math.floor(5 * (15*_height/34 + circles_rt)/(6*circles_rt))
+    circles_row = Math.floor(9*_height/(11*2.4*circles_rt))
+    if (circles_row > max_row) {
+    console.log(4)
+    circles_row = max_row
+    circles_rt = _height*15/(17*(2.4*circles_row))
+    circles_column = Math.floor(9*_width/(11*2.4*circles_rt))
+    // circles_column = Math.floor(5*(9*_width/22 + circles_rt)/(6*circles_rt))
+    }
+  }
+  // circles_rt = _width*9/(11*(2.4*circles_column))
+  // var circles_row = Math.floor(5 * (15*_height/34 + circles_rt)/(6*circles_rt))
   circles_r = circles_rt - circle_stroke
-  var box_height = (circles_rt) * (2.4*circles_row) 
+  var box_height = (circles_rt) * (2.4*circles_row)
+  var box_width = (circles_rt) * (2.4*circles_column) 
   var circles_count = circles_row*circles_column
   var circles2 = [[],[],[]]
   var counter
   var color_count = []
   var intro_svg, main_svg
   var max = -1, max_color = -1, max_color2 = -1 ,tr = 2 ,max_colors = []
-  var color = ['Tomato' , 'DeepSkyBlue' , 'LimeGreen' , 'Yellow', 'pink', 'orange', 'Chocolate', 'Plum', 'lightblue', 'gray']
+  var color = ['Tomato' , 'DodgerBlue' , 'LimeGreen' , 'Gold', 'pink', 'orange', 'Chocolate', 'Fuchsia', 'lightblue', 'gray']
   var points = 11
   var score = 0
   var time_to_timeout = 1000/30
+  var cal_hint = true
+  var show_hint = false
+
   size()
 
   function size() {
+
     var thickness = circles_r /2.8
-    $('#first').attr('width', width).attr('height', height)
-    $('#second').attr('width', width).attr('height', height)
-    $('#wrong').attr('x', width/2).attr('y', height/34).attr('font-size', circles_r)
-    $('#correct').attr('x', width/2).attr('y', height/34).attr('font-size', circles_r)
-    $('#score').attr('x', width/22).attr('y', height/2).attr('font-size', circles_r).attr('transform', 'rotate(-90,'+width/22+','+height/2+')')
-    $('#start_text1').attr('x', width/2)
-    $('#start_text2').attr('x', width/2)
-    $('#start_text3').attr('x', width/2)
-    $('#start_circle1').attr('cx', width/2 - circles_rt*4/3).attr('cy', height /2 - circles_rt*4/3)
-    $('#start_circle2').attr('cx', width/2 + circles_rt*4/3).attr('cy', height /2 - circles_rt*4/3)
-    $('#start_circle3').attr('cx', width/2 + circles_rt*4/3).attr('cy', height /2 + circles_rt*4/3)
-    $('#start_circle4').attr('cx', width/2 - circles_rt*4/3).attr('cy', height /2 + circles_rt*4/3)
-    $('#level1').attr('x', width/2 - circles_rt*4/3).attr('y', height /2 - circles_rt*4/3)
-    $('#level2').attr('x', width/2 + circles_rt*4/3).attr('y', height /2 - circles_rt*4/3)
-    $('#level3').attr('x', width/2 + circles_rt*4/3).attr('y', height /2 + circles_rt*4/3)
-    $('#level4').attr('x', width/2 - circles_rt*4/3).attr('y', height /2 + circles_rt*4/3)
+    $('#hint').attr('width', 1.6*circles_rt ).attr('height', circles_rt ).attr('y', _height/2 - circles_rt/2).attr('x', _width*3/4 + box_width/4 - 0.8*circles_rt )
+    $('#hint_text').attr('font-size', circles_rt/2 ).attr('y', _height/2).attr('x', _width*3/4 + box_width/4)
+    $('#first').attr('width', _width).attr('height', _height)
+    $('#second').attr('width', _width).attr('height', _height)
+    $('#status').attr('x', _width/2).attr('y', _height/4 - box_height/4).attr('font-size', circles_r)
+    // $('#correct').attr('x', _width/2).attr('y', _height/4 - box_height/4).attr('font-size', circles_r)
+    $('#score').attr('x', _width/22).attr('y', _height/2).attr('font-size', circles_r).attr('transform', 'rotate(-90,'+_width/22+','+_height/2+')')
+    $('#start_text1').attr('x', _width/2).attr('y', _height/2 - box_height/2 + 2*thickness)
+    $('#start_text2').attr('x', _width/2).attr('y', _height/2 - box_height/2 + 2*thickness + 20)
+    $('#start_text3').attr('x', _width/2).attr('y', _height/2 - box_height/2 + 2*thickness + 40)
+    $('#start_circle1').attr('cx', _width/2 - circles_rt*4/3).attr('cy', _height /2 - circles_rt*4/3)
+    $('#start_circle2').attr('cx', _width/2 + circles_rt*4/3).attr('cy', _height /2 - circles_rt*4/3)
+    $('#start_circle3').attr('cx', _width/2 - circles_rt*4/3).attr('cy', _height /2 + circles_rt*4/3)
+    $('#start_circle4').attr('cx', _width/2 + circles_rt*4/3).attr('cy', _height /2 + circles_rt*4/3)
+    $('#level1').attr('x', _width/2 - circles_rt*4/3).attr('y', _height /2 - circles_rt*4/3)
+    $('#level2').attr('x', _width/2 + circles_rt*4/3).attr('y', _height /2 - circles_rt*4/3)
+    $('#level3').attr('x', _width/2 - circles_rt*4/3).attr('y', _height /2 + circles_rt*4/3)
+    $('#level4').attr('x', _width/2 + circles_rt*4/3).attr('y', _height /2 + circles_rt*4/3)
     for (var i = 1; i <= 4; i++) {
       $('#level' + i).attr('fill', 'black').attr('font-size', circles_r)
       $('#level' + i).attr('touch', 'start('+2*i+')').attr('onmousedown' , 'start('+2*i+')')
@@ -142,8 +185,8 @@
     var polyline2 = $('#polyline2')
     polyline.attr('style' , 'fill:LawnGreen ; stroke:red; stroke-width:'+thickness/2 )
     polyline2.attr('style' , 'fill:LawnGreen ; stroke:red; stroke-width:'+thickness/2)
-    polyline.attr('points' , (width/11-thickness/4)+','+(height/17)+' '+(width*10/11)+','+(height/17)+' '+(width*10/11)+','+(height/17+box_height)+' '+(width/11)+','+(height/17+box_height)+' '+(width/11)+','+height/17)
-    polyline2.attr('points' , (width/11-thickness/4)+','+(height/17)+' '+(width*10/11)+','+(height/17)+' '+(width*10/11)+','+(height/17+box_height)+' '+(width/11)+','+(height/17+box_height)+' '+(width/11)+','+height /17)
+    polyline.attr('points' , ((_width/2-box_width/2)-thickness*3/4)+','+(_height/2-box_height/2-thickness/2)+' '+(_width/2+box_width/2+thickness/2)+','+(_height/2-box_height/2-thickness/2)+' '+(_width/2+box_width/2+thickness/2)+','+(_height/2+box_height/2+thickness/2)+' '+(_width/2-box_width/2-thickness/2)+','+(_height/2+box_height/2+thickness/2)+' '+(_width/2-box_width/2-thickness/2)+','+(_height/2-box_height/2-thickness/2))
+    polyline2.attr('points' , ((_width/2-box_width/2)-thickness/4)+','+(_height/2-box_height/2)+' '+(_width/2+box_width/2)+','+(_height/2-box_height/2)+' '+(_width/2+box_width/2)+','+(_height/2+box_height/2)+' '+(_width/2-box_width/2)+','+(_height/2+box_height/2)+' '+(_width/2-box_width/2)+','+(_height/2-box_height/2))
    }
 
   function start(_color_numbers) {
@@ -192,9 +235,9 @@
       for (var i = 1; i <= circles_column; i++) {
         color_number = circles2[0][counter]
         circle = $(document.createElementNS('http://www.w3.org/2000/svg', 'circle'))
-        circle.attr('cx' ,width/11 + 1.2*circles_rt + (i-1)*2.4*circles_rt )
-        circle.attr('cy' ,height/17 + 1.2*circles_rt + (j-1)*2.4*circles_rt )
-        circle.attr('r' , 1)
+        circle.attr('cx' ,_width/2 - box_width/2 + 1.2*circles_rt + (i-1)*2.4*circles_rt - 2)
+        circle.attr('cy' ,_height/2 - box_height/2 + 1.2*circles_rt + (j-1)*2.4*circles_rt - 2)
+        circle.attr('r' , circles_r - 1)
         circle.attr('fill' , color[color_number])
         circle.attr('onmousedown' , 'result('+color_number+')')
         circle.attr('touch' , 'result('+color_number+')')
@@ -206,16 +249,17 @@
     };
     counter = 0
 // draw texts
+  if (cal_hint == true) {
     for (var j = 1; j <= circles_row; j++) {
       for (var i = 1; i <= circles_column; i++) {
         text = $(document.createElementNS('http://www.w3.org/2000/svg' , 'text'))
         main_svg.append(text)
-        horizontal_part = width/11
+        horizontal_part = _width/11
         text.text(circles2[2][counter])
-        text.attr('class' , 'text_count')
-        text.attr('x' ,width/11 + 1.2*circles_rt + (i-1)*2.4*circles_rt)
-        text.attr('y' ,height/17 + 1.2*circles_rt + (j-1)*2.4*circles_rt)
-        text.attr('font-size' , 1 )
+        text.attr('class' , 'text_count').attr('display', 'none')
+        text.attr('x' ,_width/2 - box_width/2 + 1.2*circles_rt + (i-1)*2.4*circles_rt - 2)
+        text.attr('y' ,_height/2 - box_height/2 + 1.2*circles_rt + (j-1)*2.4*circles_rt - 2)
+        text.attr('font-size' , circles_rt )
         text.attr('text-anchor' , 'middle')
         text.attr('alignment-baseline' , 'middle')
         text.attr('onmousedown' , 'result('+circles2[0][counter]+')')
@@ -224,6 +268,8 @@
         counter++
         };
       };
+  };
+    
     timer()
 // Find maximom color's amount
       for (var i = 0; i < color_numbers; i++) {
@@ -241,12 +287,15 @@
 
   function start2(click) {
 // change text font size to 1
+  if (cal_hint == true) {
     text = $('.text_count')
     for (var i = 0; i < circles_count; i++) {
       if (click == circles2[0][i]) {
         $(text[i]).attr('font-size', 1)
       };
     };
+  };
+    
 // change circles2's array, color, class, OnMouse_functions color_count
     circles = $('circle')
     color_count[click] = 0
@@ -294,18 +343,23 @@
       };
     };
 // change text inerHTML , functions
+  if (cal_hint == true) {
     texts = $('.text_count')
     texts.each(function (i, text) {
       $(text).text(circles2[2][i])
       $(text).attr('onmousedown' , 'result('+circles2[0][i]+')')
       $(text).attr('touch' , 'result('+circles2[0][i]+')')
     })
+  };
   }
 
   function timer() {
     inc = 1
     setTimeout('timer()' ,time_to_timeout)
-    text = $('.text_count')
+    if (cal_hint == true) {
+      text = $('.text_count')
+    };
+    
     circles = $('circle')
 
     circles.each(function (i, circle) {
@@ -314,22 +368,29 @@
         if (circle.attr('r') < circles_r) {
           // console.log(circles.length , circles_count)
           circle.attr( 'r' , Number(circle.attr('r')) + inc )
-          if (text[i-4])
+           if (cal_hint == true) {
             $(text[i-4]).attr( 'font-size' , Number($(text[i-4]).attr('font-size')) + inc )
+           };
+            
        }
     })
   }
 
   function result(color_code) {     
     if (max_colors.indexOf(color_code) >= 0 ) {
-      $('#wrong').attr('display' , 'none')
-      $('#correct').attr('display' , 'block')
+      show_hint = true
+      hint()
+      $('#status').text('correct')
+      // $('#correct').attr('display' , 'block').text('correct')
       scoring()
       start2(color_code)
+      set_status('correct')
     }
     else {
-     $('#wrong').attr('display' , 'block')
-     $('#correct').attr('display' , 'none')
+      $('#status').text('wrong')
+      // $('#wrong').attr('display' , 'block').text('wrong')
+      // $('#correct').attr('display' , 'none').text('correct')
+      set_status('wrong')
     }
   }
 
@@ -338,6 +399,21 @@
       points--
       $('#score').text(points + '  your score: ' + score)
       setTimeout('timer_scoring()' , 1000)
+    }
+    else {
+      show_hint = false
+      hint()
+    }
+  }
+
+
+  function set_status(status) {
+    console.log(12)
+    if (status == 'correct') {
+      setTimeout(function () { $('#status').text('Pop the Color that apears most') } , 1000)
+    }
+    else {
+      setTimeout(function () { $('#status').text('Pop the Color that apears most') }, 1000)
     }
   }
 
@@ -350,6 +426,17 @@
     }
     else {
       points = 11
+    }
+  }
+
+  function hint() {
+    if (show_hint == true) {
+      show_hint = false
+      $('.text_count').attr('display', 'none')
+    }
+    else {
+      show_hint = true
+      $('.text_count').attr('display', 'block')
     }
   }
 </script>
