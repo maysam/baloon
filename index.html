@@ -7,7 +7,7 @@
     stroke: black;
     stroke-width :1.5px ;
   }
-  .text_count, circle, #hint_text {
+  .text_count, circle, #hint_text, #hint {
     cursor: pointer;
   }
 
@@ -146,12 +146,13 @@
   var color_count = []
   var intro_svg, main_svg
   var max = -1, max_color = -1, max_color2 = -1 ,tr = 2 ,max_colors = []
-  var color = ['Tomato' , 'DodgerBlue' , 'LimeGreen' , 'Gold', 'pink', 'orange', 'Chocolate', 'Fuchsia', 'lightblue', 'gray']
+  var color = ['Tomato' , 'DodgerBlue' , 'LimeGreen' , 'Gold', 'pink', 'orange', 'Brown', 'Fuchsia', 'lightblue', 'gray']
   var points = 11
   var score = 0
   var time_to_timeout = 1000/30
   var cal_hint = true
   var show_hint = false
+  var button_activation = true
 
   size()
 
@@ -378,6 +379,7 @@
 
   function result(color_code) {     
     if (max_colors.indexOf(color_code) >= 0 ) {
+      button_activation = true
       show_hint = true
       hint()
       $('#status').text('correct')
@@ -403,12 +405,13 @@
     else {
       show_hint = false
       hint()
+      button_activation = false
+
     }
   }
 
 
   function set_status(status) {
-    console.log(12)
     if (status == 'correct') {
       setTimeout(function () { $('#status').text('Pop the Color that apears most') } , 1000)
     }
@@ -430,14 +433,22 @@
   }
 
   function hint() {
-    if (show_hint == true) {
-      show_hint = false
-      $('.text_count').attr('display', 'none')
+    if (button_activation == true ) {
+      if (show_hint == true) {
+        show_hint = false
+        $('.text_count').attr('display', 'none')
+      }
+     else {
+        show_hint = true
+        $('.text_count').attr('display', 'block')
+        setTimeout(function() {$('.text_count').attr('display', 'none')}, 4000)
+        setTimeout(function() {button_activation = true}, 4000)
+        setTimeout(function() {show_hint = false}, 4000)
+        
+
+      }
     }
-    else {
-      show_hint = true
-      $('.text_count').attr('display', 'block')
-    }
+      
   }
 </script>
 </body>
